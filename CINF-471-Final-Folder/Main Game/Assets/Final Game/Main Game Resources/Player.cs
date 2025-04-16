@@ -1,66 +1,66 @@
 using UnityEngine;
 
-public class Movement : MonoBehaviour
-
+public class Player : MonoBehaviour
 {
-    public float speed;
-    public float rotationSpeed;
-    public float jumpSpeed;
+    public GameObject Player1;
 
-    //private Animator animator;
-    private CharacterController characterController;
-    private float ySpeed;
-    private float originalStepOffset;
+    public float Health, MaxHealth;
 
-    void Start()
+    [SerializeField]
+    private HealthBarUI healthBar;
+
+    void Start() 
     {
-        //animator = GetComponent<Animator>();
-        characterController = GetComponent<CharacterController>();
-        originalStepOffset = characterController.stepOffset;
+        healthBar.SetMaxHealth(MaxHealth);
     }
 
-    void Update()
+    void Update() 
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
-
-        Vector3 movementDirection = new Vector3(horizontalInput, 0, verticalInput);
-        float magnitude = Mathf.Clamp01(movementDirection.magnitude) * speed;
-        movementDirection.Normalize();
-
-        ySpeed += Physics.gravity.y * Time.deltaTime;
-
-        if (characterController.isGrounded)
+        if(Input.GetKeyDown(KeyCode.Mouse0))
         {
-            characterController.stepOffset = originalStepOffset;
-            ySpeed = -0.5f;
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                ySpeed = jumpSpeed;
-            }
+            DoLAttack();
+            SetHealth(-35f);
         }
-        else
+        else if(Input.GetKeyDown(KeyCode.Mouse1))
         {
-            characterController.stepOffset = 0;
+            DoRAttack();
+            SetHealth(-20f);
         }
-
-        Vector3 velocity = movementDirection * magnitude;
-        velocity.y = ySpeed;
-
-        characterController.Move(velocity * Time.deltaTime);
-
-        if (movementDirection != Vector3.zero)
+        else if(Input.GetKeyDown(KeyCode.A))
         {
-            //animator.SetBool("IsWalking", true);
-            Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
-
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
-
+            LDodge();
         }
-        else
+        else if(Input.GetKeyDown(KeyCode.D))
         {
-            //animator.SetBool("IsWalking", false);
+            RDodge();
         }
+    }
+
+    public void DoLAttack()
+    {
+        Player1.GetComponent<Animator>().SetTrigger("LPUNCH");
+    }
+
+    public void DoRAttack()
+    {
+        Player1.GetComponent<Animator>().SetTrigger("RPUNCH");
+    }
+
+    public void LDodge()
+    {
+        Player1.GetComponent<Animator>().SetTrigger("LSTRAFE");
+    }
+
+    public void RDodge()
+    {
+        Player1.GetComponent<Animator>().SetTrigger("RSTRAFE");
+    }
+
+    public void SetHealth(float healthChange)
+    {
+        Health += healthChange;
+        Health = Mathf.Clamp(Health, 0, MaxHealth);
+
+        healthBar.SetHealth(Health);
     }
 }
