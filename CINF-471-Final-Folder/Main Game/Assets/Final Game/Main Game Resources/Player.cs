@@ -1,17 +1,34 @@
 using UnityEngine;
+using System.Collections;
 
 public class Player : MonoBehaviour
 {
     public GameObject Player1;
+    public GameObject LeftFist;
+    public GameObject RightFist;
+
+    public Rigidbody rb;
+    public Vector3 targetPosition = new Vector3(-2.04f, 6.02f, -9.12f);
+    public float forceStrength = 10f;
 
     public float Health, MaxHealth;
 
     [SerializeField]
     private HealthBarUI healthBar;
 
+    //test//
+    private bool isBusy = false;
+    //test//
+
     void Start() 
     {
         healthBar.SetMaxHealth(MaxHealth);
+    }
+
+    void FixedUpdate()
+    {
+        Vector3 direction = (targetPosition - rb.position).normalized;
+        rb.AddForce(direction * forceStrength);
     }
 
     void Update() 
@@ -19,12 +36,10 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Mouse0))
         {
             DoLAttack();
-            SetHealth(-35f);
         }
         else if(Input.GetKeyDown(KeyCode.Mouse1))
         {
             DoRAttack();
-            SetHealth(-20f);
         }
         else if(Input.GetKeyDown(KeyCode.A))
         {
@@ -34,27 +49,59 @@ public class Player : MonoBehaviour
         {
             RDodge();
         }
+        else if(Input.GetKeyDown(KeyCode.Mouse4))
+        {
+            DoLHook();
+        }
+        else if(Input.GetKeyDown(KeyCode.Mouse3))
+        {
+            DoRHook();
+        }
     }
+
+    private IEnumerator PlayWithCooldown(string triggerName, float delay)
+        {
+            isBusy = true;
+            Player1.GetComponent<Animator>().SetTrigger(triggerName);
+            yield return new WaitForSeconds(delay);
+            isBusy = false;
+        }
 
     public void DoLAttack()
-    {
-        Player1.GetComponent<Animator>().SetTrigger("LPUNCH");
-    }
+        {
+            if (!isBusy)
+                StartCoroutine(PlayWithCooldown("LPUNCH", .25f));
+        }
 
     public void DoRAttack()
-    {
-        Player1.GetComponent<Animator>().SetTrigger("RPUNCH");
-    }
+        {
+            if (!isBusy)
+                StartCoroutine(PlayWithCooldown("RPUNCH", .25f));
+        }
 
     public void LDodge()
-    {
-        Player1.GetComponent<Animator>().SetTrigger("LSTRAFE");
-    }
+        {
+            if (!isBusy)
+                StartCoroutine(PlayWithCooldown("LSTRAFE", .75f));
+        }
 
     public void RDodge()
-    {
-        Player1.GetComponent<Animator>().SetTrigger("RSTRAFE");
-    }
+        {
+            if (!isBusy)
+                StartCoroutine(PlayWithCooldown("RSTRAFE", .75f));
+        }
+
+    public void DoLHook()
+        {
+            if (!isBusy)
+                StartCoroutine(PlayWithCooldown("LHOOK", .5f));
+        }
+
+    public void DoRHook()
+        {
+            if (!isBusy)
+                StartCoroutine(PlayWithCooldown("RHOOK", .5f));
+        }
 
     public void SetHealth(float healthChange)
     {
@@ -62,5 +109,52 @@ public class Player : MonoBehaviour
         Health = Mathf.Clamp(Health, 0, MaxHealth);
 
         healthBar.SetHealth(Health);
+    }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Enemy enemy = collision.collider.GetComponent<Enemy>();
+        Rigidbody enemyRb = collision.collider.GetComponent<Rigidbody>();
+
+        if (collision.contacts[0].thisCollider.gameObject == LeftFist)
+        {
+            // Check if the object it hit does NOT have an Enemy component
+            if (collision.collider.GetComponent<Enemy>() != null)
+            {
+                Debug.Log("LeftFist hit a enemy object!");
+                SetHealth(-10f); // or whatever action you want
+                Vector3 pushDirection = (enemy.transform.position - transform.position).normalized;
+                enemyRb.AddForce(pushDirection * 150f);
+            }
+
+            if (Health <= 0)
+            {
+                LaunchEnemy(enemyRb);
+            }
+        }
+        else if (collision.contacts[0].thisCollider.gameObject == RightFist)
+        {
+            // Check if the object it hit does NOT have an Enemy component
+            if (collision.collider.GetComponent<Enemy>() != null)
+            {
+                Debug.Log("RightFist hit a enemy object HARD!");
+                SetHealth(-20f); // or whatever action you want
+                Vector3 pushDirection = (enemy.transform.position - transform.position).normalized;
+                enemyRb.AddForce(pushDirection * 200f);
+            }
+
+            if (Health <= 0)
+            {
+                LaunchEnemy(enemyRb);
+            }
+        }
+    }
+
+    private void LaunchEnemy(Rigidbody enemyRb)
+    {
+        enemyRb.constraints = RigidbodyConstraints.None; // Unfreeze all
+        enemyRb.AddForce(Vector3.up * 1000f); // Adjust force to taste
+        enemyRb.AddTorque(Random.insideUnitSphere * 500f); // Optional: adds random spin
     }
 }

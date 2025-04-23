@@ -10,6 +10,9 @@ public class Enemy : MonoBehaviour
     private float timer2 = 0f;
     public float thrust;
 
+    public GameObject EnemyLeftFist;
+    public GameObject EnemyRightFist;
+
 
      public float Health, MaxHealth;
     [SerializeField]
@@ -29,7 +32,6 @@ public class Enemy : MonoBehaviour
         {
             anim.Play("PUNCH");
             timer = 0;
-            SetHealth2(-35f);
             rb.AddRelativeForce(Vector3.forward * thrust);
         }
 
@@ -37,7 +39,6 @@ public class Enemy : MonoBehaviour
         {
             anim.Play("PUNCH2");
             timer2 = 0;
-            SetHealth2(-35f);
             rb.AddRelativeForce(Vector3.forward * thrust);
         }
     }
@@ -54,5 +55,27 @@ public class Enemy : MonoBehaviour
         Health = Mathf.Clamp(Health, 0, MaxHealth);
 
         healthBar.SetHealth2(Health);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.contacts[0].thisCollider.gameObject == EnemyLeftFist)
+        {
+            // Check if the object it hit does NOT have an Enemy component
+            if (collision.collider.GetComponent<Player>() != null)
+            {
+                Debug.Log("LeftFist hit a enemy object!");
+                SetHealth2(-10f); // or whatever action you want
+            }
+        }
+        else if (collision.contacts[0].thisCollider.gameObject == EnemyRightFist)
+        {
+            // Check if the object it hit does NOT have an Enemy component
+            if (collision.collider.GetComponent<Player>() != null)
+            {
+                Debug.Log("RightFist hit a enemy object HARD!");
+                SetHealth2(-20f); // or whatever action you want
+            }
+        }
     }
 }
