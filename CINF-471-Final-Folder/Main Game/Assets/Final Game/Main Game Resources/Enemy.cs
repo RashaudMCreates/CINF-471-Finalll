@@ -59,13 +59,20 @@ public class Enemy : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Player enemy = collision.collider.GetComponent<Player>();
+        Rigidbody enemyRb = collision.collider.GetComponent<Rigidbody>();
+
         if (collision.contacts[0].thisCollider.gameObject == EnemyLeftFist)
         {
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Player>() != null)
             {
-                Debug.Log("LeftFist hit a enemy object!");
-                SetHealth2(-10f); // or whatever action you want
+                Debug.Log("LeftFist hit a player object!");
+                SetHealth2(-20f); // or whatever action you want
+            }
+            if (Health <= 0)
+            {
+                LaunchEnemy(enemyRb);
             }
         }
         else if (collision.contacts[0].thisCollider.gameObject == EnemyRightFist)
@@ -73,9 +80,20 @@ public class Enemy : MonoBehaviour
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Player>() != null)
             {
-                Debug.Log("RightFist hit a enemy object HARD!");
-                SetHealth2(-20f); // or whatever action you want
+                Debug.Log("RightFist hit a player object HARD!");
+                SetHealth2(-40f); // or whatever action you want
+            }
+            if (Health <= 0)
+            {
+                LaunchEnemy(enemyRb);
             }
         }
+    }
+
+    private void LaunchEnemy(Rigidbody enemyRb)
+    {
+        enemyRb.constraints = RigidbodyConstraints.None; // Unfreeze all
+        enemyRb.AddForce(Vector3.up * 1000f); // Adjust force to taste
+        enemyRb.AddTorque(Random.insideUnitSphere * 500f); // Optional: adds random spin
     }
 }
