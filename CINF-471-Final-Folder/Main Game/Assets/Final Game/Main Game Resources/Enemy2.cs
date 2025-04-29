@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy2 : MonoBehaviour
 {
     public Rigidbody rb;
     public Vector3 targetPosition = new Vector3(-4.6873f, 6.357f, -9.1297f);
