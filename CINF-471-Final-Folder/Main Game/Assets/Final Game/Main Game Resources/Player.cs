@@ -25,14 +25,20 @@ public class Player : MonoBehaviour
 
     private bool Uppering = false;
 
+    public Camera mainCam;
+    public Camera knockoutCam;
+
+
+    public AudioSource ContactHit;
+
 
     void Start() 
     {
         healthBar.SetMaxHealth(MaxHealth);
         Time.timeScale = 1f;
 
-        //test//
-        //test//
+        mainCam.enabled = true;
+        knockoutCam.enabled = false;
     }
 
     void FixedUpdate()
@@ -43,7 +49,7 @@ public class Player : MonoBehaviour
 
     void Update() 
     {
-        Debug.Log("Uppering is: " + Uppering);
+        //Debug.Log("Uppering is: " + Uppering);
 
         if(Input.GetKeyDown(KeyCode.Mouse0))
         {
@@ -143,22 +149,61 @@ public class Player : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         Enemy enemy = collision.collider.GetComponent<Enemy>();
+        Enemy2 enemy2 = collision.collider.GetComponent<Enemy2>();
+        Enemy3 enemy3 = collision.collider.GetComponent<Enemy3>();
+        EnemyBoss enemy4 = collision.collider.GetComponent<EnemyBoss>();
         Rigidbody enemyRb = collision.collider.GetComponent<Rigidbody>();
+        Rigidbody enemyRb2 = collision.collider.GetComponent<Rigidbody>();
+        Rigidbody enemyRb3 = collision.collider.GetComponent<Rigidbody>();
+        Rigidbody enemyRb4 = collision.collider.GetComponent<Rigidbody>();
 
         if (collision.contacts[0].thisCollider.gameObject == LeftFist)
         {
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Enemy>() != null)
             {
+                ContactHit.Play();
                 Debug.Log("LeftFist hit a enemy object!");
                 SetHealth(-20f); // or whatever action you want
                 Vector3 pushDirection = (enemy.transform.position - transform.position).normalized;
                 enemyRb.AddForce(pushDirection * 150f);
             }
+            else if (collision.collider.GetComponent<Enemy2>() != null)
+            {
+                ContactHit.Play();
+                Debug.Log("LeftFist hit a enemy object!");
+                SetHealth(-35f); // or whatever action you want
+                Vector3 pushDirection = (enemy2.transform.position - transform.position).normalized;
+                enemyRb2.AddForce(pushDirection * 150f);
+            }
+            else if (collision.collider.GetComponent<Enemy3>() != null)
+            {
+                ContactHit.Play();
+                Debug.Log("LeftFist hit a enemy object!");
+                SetHealth(-35f); // or whatever action you want
+                Vector3 pushDirection = (enemy3.transform.position - transform.position).normalized;
+                enemyRb3.AddForce(pushDirection * 150f);
+            }
+            else if (collision.collider.GetComponent<EnemyBoss>() != null)
+            {
+                ContactHit.Play();
+                Debug.Log("LeftFist hit a enemy object!");
+                SetHealth(-40f); // or whatever action you want
+                Vector3 pushDirection = (enemy4.transform.position - transform.position).normalized;
+                enemyRb4.AddForce(pushDirection * 150f);
+            }
 
             if (Health <= 0)
             {
                 LaunchEnemy(enemyRb);
+                LaunchEnemy(enemyRb2);
+                LaunchEnemy(enemyRb3);
+                LaunchEnemy(enemyRb4);
+                EnemyFist.SetActive(false);
+                EnemyFist2.SetActive(false);
+
+                mainCam.enabled = false;
+                knockoutCam.enabled = true;
             }
         }
         else if (collision.contacts[0].thisCollider.gameObject == RightFist)
@@ -166,6 +211,7 @@ public class Player : MonoBehaviour
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Enemy>() != null)
             {
+                ContactHit.Play();
                 Debug.Log("RightFist hit a enemy object HARD!");
                 SetHealth(-40f); // or whatever action you want
                 Vector3 pushDirection = (enemy.transform.position - transform.position).normalized;
@@ -177,12 +223,62 @@ public class Player : MonoBehaviour
                     enemyRb.AddForce(pushDirection * 300f);
                 }
             }
+            else if (collision.collider.GetComponent<Enemy2>() != null)
+            {
+                ContactHit.Play();
+                Debug.Log("RightFist hit a enemy object HARD!");
+                SetHealth(-40f); // or whatever action you want
+                Vector3 pushDirection = (enemy2.transform.position - transform.position).normalized;
+                enemyRb2.AddForce(pushDirection * 200f);
+
+                if (Uppering)
+                {
+                    SetHealth(-50f);
+                    enemyRb2.AddForce(pushDirection * 100f);
+                }
+            }
+
+            else if (collision.collider.GetComponent<Enemy3>() != null)
+            {
+                ContactHit.Play();
+                Debug.Log("RightFist hit a enemy object HARD!");
+                SetHealth(-40f); // or whatever action you want
+                Vector3 pushDirection = (enemy3.transform.position - transform.position).normalized;
+                enemyRb3.AddForce(pushDirection * 200f);
+
+                if (Uppering)
+                {
+                    SetHealth(-70f);
+                    enemyRb3.AddForce(pushDirection * 300f);
+                }
+            }
+
+            else if (collision.collider.GetComponent<EnemyBoss>() != null)
+            {
+                ContactHit.Play();
+                Debug.Log("RightFist hit a enemy object HARD!");
+                SetHealth(-70f); // or whatever action you want
+                Vector3 pushDirection = (enemy4.transform.position - transform.position).normalized;
+                enemyRb4.AddForce(pushDirection * 200f);
+
+                if (Uppering)
+                {
+                    SetHealth(-70f);
+                    enemyRb3.AddForce(pushDirection * 300f);
+                }
+            }
 
             if (Health <= 0)
             {
                 LaunchEnemy(enemyRb);
+                LaunchEnemy(enemyRb2); //I soooo don't need this
+                LaunchEnemy(enemyRb3); //I soooo don't need this
+                LaunchEnemy(enemyRb4); //I soooo don't need this
                 EnemyFist.SetActive(false);
                 EnemyFist2.SetActive(false);
+
+                mainCam.enabled = false;
+                knockoutCam.enabled = true;
             }
         }
     }
@@ -190,7 +286,7 @@ public class Player : MonoBehaviour
     public void LaunchEnemy(Rigidbody enemyRb)
     {
         enemyRb.constraints = RigidbodyConstraints.None; // Unfreeze all
-        enemyRb.AddForce(Vector3.up * 1500f); // Adjust force to taste
+        enemyRb.AddForce(Vector3.up * 1000); // Adjust force to taste
         enemyRb.AddTorque(Random.insideUnitSphere * 500f); // Optional: adds random spin
     }
 }

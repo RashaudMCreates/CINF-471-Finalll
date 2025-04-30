@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
+
 
 public class Enemy2 : MonoBehaviour
 {
@@ -21,6 +24,12 @@ public class Enemy2 : MonoBehaviour
     [SerializeField]
     private YourHealthBarUI healthBar;
 
+    public AudioSource knockout;
+
+    public AudioSource ContactHit;
+
+    private bool hasPlayedKnockout = false;
+
     void Start() 
     {
         healthBar.SetMaxHealth2(MaxHealth);
@@ -35,23 +44,39 @@ public class Enemy2 : MonoBehaviour
 
         if (timer >= 4f)
         {
-            anim.Play("PUNCH");
+            anim.Play("Enemy2LeftHook");
             timer = 0;
             rb.AddRelativeForce(Vector3.forward * thrust);
         }
 
         if (timer2 >= 6f)
         {
-            anim.Play("PUNCH2");
+            anim.Play("Enemy2RightHook");
             timer2 = 0;
             rb.AddRelativeForce(Vector3.forward * thrust);
         }
 
-
-        if (transform.position.y < 0)
+            if (transform.position.y < 0 && !hasPlayedKnockout)
         {
-            Time.timeScale = 0.5f;
+            hasPlayedKnockout = true;
+            StartCoroutine(PlayKnockoutAndLoadScene());
         }
+    }
+
+    private IEnumerator PlayKnockoutAndLoadScene()
+    {
+    knockout.Play();
+    Time.timeScale = 0.5f;
+
+    // Wait for the knockout audio to finish
+    while (knockout.isPlaying)
+    {
+        yield return null;
+    }
+
+    // Optionally reset time scale before loading
+    Time.timeScale = 1f;
+    SceneManager.LoadScene(6);
     }
 
     void FixedUpdate()
@@ -78,6 +103,7 @@ public class Enemy2 : MonoBehaviour
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Player>() != null)
             {
+                ContactHit.Play();
                 Debug.Log("LeftFist hit a player object!");
                 SetHealth2(-40f); // or whatever action you want
             }
@@ -91,6 +117,7 @@ public class Enemy2 : MonoBehaviour
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Player>() != null)
             {
+                ContactHit.Play();
                 Debug.Log("RightFist hit a player object HARD!");
                 SetHealth2(-40f); // or whatever action you want
             }

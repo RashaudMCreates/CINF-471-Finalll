@@ -15,8 +15,35 @@ EditorBuildSettings:
     path: Assets/Final Game/Controls.unity
     guid: 79bb51f156dfdaf46b4fe55a06cb6044
   - enabled: 1
-    path: Assets/Final Game/Main Game Enemy 1.unity
+    path: Assets/Final Game/Custcene.unity
+    guid: e47c283618b1ed240843cbb2f5786600
+  - enabled: 1
+    path: Assets/Final Game/Enemy 1.unity
     guid: 063d8ad922291554db82643607d2b019
+  - enabled: 1
+    path: Assets/Final Game/Custcene 2.unity
+    guid: 04a327a47670c084fb031a700df21a1a
+  - enabled: 1
+    path: Assets/Final Game/Enemy 2.unity
+    guid: 08c09d80123b9df41a554f696c1be54c
+  - enabled: 1
+    path: Assets/Final Game/Cutscene 3.unity
+    guid: 68bcd90a2c3f99142823b7c092503f43
+  - enabled: 1
+    path: Assets/Final Game/Enemy 3.unity
+    guid: e9cf92dddcd95f247af22f4db38ff572
+  - enabled: 1
+    path: Assets/Final Game/Cutscene 4.unity
+    guid: 8291e12af76765c4ab9a75ee058674d7
+  - enabled: 1
+    path: Assets/Final Game/Enemy Boss.unity
+    guid: b01fce11e013c6c4a869fc6f8f39f1d5
+  - enabled: 1
+    path: Assets/Final Game/Custcene 5.unity
+    guid: c626834dba17fb74d869784647f0f45a
+  - enabled: 1
+    path: Assets/Final Game/Win.unity
+    guid: 5e5bdd4cd63667b4e9b8921a4e952325
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

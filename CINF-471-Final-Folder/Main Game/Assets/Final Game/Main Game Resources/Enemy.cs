@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
@@ -20,6 +22,12 @@ public class Enemy : MonoBehaviour
     public float Health, MaxHealth;
     [SerializeField]
     private YourHealthBarUI healthBar;
+
+    public AudioSource knockout;
+
+    public AudioSource ContactHit;
+
+    private bool hasPlayedKnockout = false;
 
     void Start() 
     {
@@ -48,10 +56,27 @@ public class Enemy : MonoBehaviour
         }
 
 
-        if (transform.position.y < 0)
+        if (transform.position.y < 0 && !hasPlayedKnockout)
         {
-            Time.timeScale = 0.5f;
+            hasPlayedKnockout = true;
+            StartCoroutine(PlayKnockoutAndLoadScene());
         }
+    }
+
+    private IEnumerator PlayKnockoutAndLoadScene()
+    {
+    knockout.Play();
+    Time.timeScale = 0.5f;
+
+    // Wait for the knockout audio to finish
+    while (knockout.isPlaying)
+    {
+        yield return null;
+    }
+
+    // Optionally reset time scale before loading
+    Time.timeScale = 1f;
+    SceneManager.LoadScene(4);
     }
 
     void FixedUpdate()
@@ -78,6 +103,7 @@ public class Enemy : MonoBehaviour
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Player>() != null)
             {
+                ContactHit.Play();
                 Debug.Log("LeftFist hit a player object!");
                 SetHealth2(-40f); // or whatever action you want
             }
@@ -91,6 +117,7 @@ public class Enemy : MonoBehaviour
             // Check if the object it hit does NOT have an Enemy component
             if (collision.collider.GetComponent<Player>() != null)
             {
+                ContactHit.Play();
                 Debug.Log("RightFist hit a player object HARD!");
                 SetHealth2(-40f); // or whatever action you want
             }

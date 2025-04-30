@@ -7,10 +7,12 @@ public class PauseMenu : MonoBehaviour
 
     public GameObject pauseMenuUI;
 
+    private string currentSceneName;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        currentSceneName = SceneManager.GetActiveScene().name;
     }
 
     // Update is called once per frame
@@ -44,7 +46,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Restart()
     {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(currentSceneName);
         Time.timeScale = 1f;
         GameIsPaused = false;
     }
